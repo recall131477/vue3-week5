@@ -27,7 +27,6 @@ const app = Vue.createApp({
   data() {
     return {
       productData: [],
-      productId: '',
       cartData: [],
       isLoadingItem: '',
       form: {
@@ -58,9 +57,8 @@ const app = Vue.createApp({
           alert(err.data.message);
         });
     },
-    openProductModal(id) { // 當 id 與產品 id 相同時，打開產品 modal
-      this.productId = id;
-      this.$refs.callUserProductModal.openModal();
+    openProductModal(id) { // 對應產品 id，打開相對應產品 modal
+      this.$refs.callUserProductModal.getProduct(id);
     },
     getCartData() { // 取得購物車資料
       const url = `${apiUrl}/api/${apiPath}/cart`;
@@ -99,6 +97,13 @@ const app = Vue.createApp({
       axios.put(url, { data })
         .then((res) => {
           this.getCartData();
+          Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: '已更新商品',
+            showConfirmButton: false,
+            timer: 1500,
+          });
           this.isLoadingItem = '';
         })
         .catch((err) => {
@@ -110,8 +115,11 @@ const app = Vue.createApp({
       axios.delete(url)
         .then((res) => {
           Swal.fire({
+            position: 'center',
             icon: 'success',
-            text: '已刪除全部商品'
+            title: '已刪除全部商品',
+            showConfirmButton: false,
+            timer: 1500,
           });
           this.getCartData();
         })

@@ -1,5 +1,4 @@
 export default {
-  props: ['id'],
   data() {
     return {
       apiUrl: 'https://vue3-course-api.hexschool.io/v2',
@@ -10,16 +9,20 @@ export default {
     };
   },
   watch: {
-    id() { // 當 id 改變時，觸發 getProduct 函式
-      this.getProduct();
-    },
+    qty() { // 當 qty 小於等於0時，跳出提示並將 qty 值為1
+      if(this.qty < 0 || this.qty === 0) {
+        alert('數量不能低於1');
+        this.qty = 1;
+      }
+    }
   },
   methods: {
-    getProduct() { // 取得特定產品資料
-      const url = `${this.apiUrl}/api/${this.apiPath}/product/${this.id}`;
+    getProduct(id) { // 取得特定產品資料
+      const url = `${this.apiUrl}/api/${this.apiPath}/product/${id}`;
       axios.get(url)
         .then((res) => {
           this.product = res.data.product;
+          this.openModal();
         })
         .catch((err) => {
           alert(err.data.message);
@@ -27,6 +30,13 @@ export default {
     },
     addToCart() { // 元件內的加入購物車
       this.$emit('add-cart', this.product.id, this.qty);
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: '已加入購物車',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     },
     openModal() { // 打開 modal
       this.modal.show();
@@ -36,7 +46,7 @@ export default {
     }
   },
   mounted() {
-    // 實體化 modal (這裡才取的到DOM元素)
+    // 實體化 modal (這裡才取的到 DOM 元素)
     this.modal = new bootstrap.Modal(this.$refs.userProductModal);
   },
   template:
